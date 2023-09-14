@@ -1,0 +1,82 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  userId        String   @id @default(uuid())
+  name          String
+  address       String?
+  birth         String?
+  username      String   @unique
+  avatarUrl     String?  @default("avatar-default.jpg")
+  email         String   @unique
+  password      String
+  resetPassword Int?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now())
+
+  Post     Post[]
+  React    React[]
+  Favorite Favorite[]
+  Follow   Follow[]
+}
+
+model Post {
+  postId    String   @id @default(uuid())
+  userId    String
+  title     String
+  content   String
+  coverUrl  String
+  tags      String?
+  isPublic  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  user     User       @relation(fields: [userId], references: [userId])
+  React    React[]
+  Favorite Favorite[]
+}
+
+model React {
+  reactId   String   @id @default(uuid())
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [userId])
+  post Post @relation(fields: [postId], references: [postId])
+}
+
+model Favorite {
+  favoriteId String   @id @default(uuid())
+  userId     String
+  postId     String
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [userId])
+  post Post @relation(fields: [postId], references: [postId])
+}
+
+model Follow {
+  followId       String   @id @default(uuid())
+  userFollowId   String
+  userFollowedId String
+  createdAt      DateTime @default(now())
+
+  user User @relation(fields: [userFollowedId], references: [userId])
+}
+
+model Logout {
+  logoutId     String @id @default(uuid())
+  invalidToken String
+
+  createdAt DateTime @default(now())
+}
